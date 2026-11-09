@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>사람과 공간 | 공간 선호 연구</title>
+<meta name="description" content="밤의 꽃 계곡을 걸으며 답하는 공간 선호 연구. 스크롤할수록 풍경이 자라납니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;600&family=Manrope:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --u:min(calc(100vw/1600),calc(100vh/900));
+  --cream:#f5efe2;--ink:#151510;
+  --line:rgba(245,239,226,.16);--soft:rgba(245,239,226,.66);--faint:rgba(245,239,226,.42);
+  --glass:rgba(4,7,6,.26);--glass2:rgba(4,7,6,.5);
+  --sans:Manrope,"Noto Sans KR",system-ui,sans-serif;
+  --serif:"Noto Serif KR",Georgia,serif;
+  --display:Antonio,"Arial Narrow",sans-serif;
+  --vig:.55;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#000;scroll-behavior:auto;overflow-x:clip}
+body{min-height:100%;background:#000;color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:disabled{cursor:default}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+
+/* ---------- valley layers ---------- */
+#valley{position:fixed;inset:0;z-index:0;background:radial-gradient(120% 80% at 50% 30%,#0c1d24 0%,#050a0e 55%,#000 100%)}
+#valley canvas{display:block;width:100%!important;height:100%!important}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 52%,rgba(0,0,0,0) calc(70% - var(--vig)*40%),rgba(0,0,0,.82) 100%);}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;animation:grain 1s steps(6) infinite}
+@keyframes grain{0%{background-position:0 0}20%{background-position:-37px 21px}40%{background-position:52px -63px}60%{background-position:-18px -29px}80%{background-position:71px 44px}100%{background-position:0 0}}
+
+/* ---------- fixed chrome ---------- */
+.chrome{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:0;transition:opacity 1.6s ease}
+.chrome.on{opacity:1}
+.chrome a,.chrome button{pointer-events:auto}
+header{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:calc(24*var(--u)) calc(44*var(--u)) calc(30*var(--u));
+  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));}
+.logo{font-size:calc(24*var(--u));font-weight:500;letter-spacing:-.02em;white-space:nowrap}
+.logo small{font-family:var(--display);font-size:.62em;letter-spacing:.18em;margin-left:.7em;opacity:.55}
+nav{display:flex;align-items:center;gap:calc(40*var(--u));font-size:calc(14.5*var(--u));font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+nav a:not(.pill){transition:opacity .2s}nav a:not(.pill):hover{opacity:.6}
+.pill{display:inline-flex;align-items:center;height:calc(46*var(--u));padding:0 calc(26*var(--u));border-radius:99px;background:var(--cream);color:var(--ink);letter-spacing:.06em;transition:transform .25s}
+.pill:hover{transform:translateY(-1px)}
+.progress{position:absolute;left:50%;top:calc(30*var(--u));transform:translate(-50%,-6px);display:flex;align-items:center;gap:14px;
+  font-family:var(--display);font-size:14px;letter-spacing:.18em;white-space:nowrap;opacity:0;transition:opacity .5s,transform .5s}
+body.in-survey .progress{opacity:1;transform:translate(-50%,0)}
+.progress .bar{width:180px;height:2px;background:rgba(245,239,226,.2);border-radius:2px;overflow:hidden}
+.progress .bar i{display:block;height:100%;width:0;background:var(--cream);transition:width .5s ease}
+.corner{position:absolute;right:calc(44*var(--u));bottom:calc(44*var(--u));display:flex;align-items:center;gap:calc(18*var(--u));font-size:calc(12.5*var(--u));font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.corner .hint{transition:opacity .5s}
+body.scrolled .corner .hint,body.scrolled .corner i{opacity:0}
+.corner i{width:1px;height:calc(26*var(--u));background:rgba(245,239,226,.45);transition:opacity .5s}
+.sound{display:grid;place-items:center;width:calc(28*var(--u));height:calc(28*var(--u));min-width:24px;min-height:24px}
+.sound svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sound .w,.sound .x{transition:opacity .3s}
+.sound[aria-pressed=false] .w{opacity:0}
+.sound[aria-pressed=true] .x{opacity:0}
+.loader{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#000;transition:opacity 1s ease;pointer-events:none}
+.loader.gone{opacity:0}
+.loader span{width:calc(9*var(--u));height:calc(9*var(--u));min-width:6px;min-height:6px;border-radius:50%;background:var(--cream);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(.4);opacity:.4}}
+
+/* ---------- scrolling content ---------- */
+main{position:relative;z-index:5}
+.hero{height:100vh;height:100svh;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;transform:translateY(4%)}
+.hero .reveal-hero{opacity:0;transform:translateY(16px);transition:opacity 1.6s ease,transform 1.6s ease}
+.chrome.on ~ main .reveal-hero,body.ui-on .hero .reveal-hero{opacity:1;transform:none}
+.kick{font-family:var(--display);font-size:calc(17*var(--u));letter-spacing:.42em;opacity:.7;margin-bottom:calc(22*var(--u));padding-left:.42em}
+h1{font:400 calc(158*var(--u))/.92 var(--display);letter-spacing:-.012em;white-space:normal;text-wrap:balance;max-width:100%;text-transform:uppercase}
+.hero h1,.hero .cap,.hero .kick{text-shadow:0 2px 30px rgba(0,0,0,.55)}
+.cap{margin-top:calc(44*var(--u));font-family:var(--serif);font-weight:500;font-size:calc(26*var(--u));line-height:1.45;letter-spacing:-.02em}
+.go{display:grid;place-items:center;margin-top:calc(34*var(--u));width:calc(58*var(--u));height:calc(58*var(--u));min-width:48px;min-height:48px;border:1.5px solid var(--cream);border-radius:50%;transition:background .3s,color .3s}
+.go:hover{background:var(--cream);color:var(--ink)}
+.go svg{width:calc(22*var(--u));height:calc(22*var(--u));min-width:18px;min-height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transform:rotate(90deg)}
+
+.block{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:110px 20px 90px}
+.block.locked{display:none}
+/* open stretches of garden between questions: only the valley shows while you walk on */
+.q,#final{margin-top:95vh;margin-top:95svh}
+#mbti{margin-top:45vh;margin-top:45svh}
+.results{margin-top:60vh}
+.card{will-change:opacity,transform;width:min(1040px,100%);padding:clamp(24px,3vw,44px);border-radius:24px;background:linear-gradient(160deg,rgba(4,7,6,.34),rgba(4,7,6,.14));border:1px solid rgba(245,239,226,.14);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  box-shadow:0 30px 80px rgba(0,0,0,.18);text-shadow:0 1px 14px rgba(0,0,0,.65);
+  opacity:0;transform:translateY(40px) scale(.985);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.seen .card,.card.seen{opacity:1;transform:none}
+.meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-bottom:14px}
+.qn{font-family:var(--display);font-size:15px;letter-spacing:.24em}
+.qn em{font-style:normal;opacity:.45}
+.cat{font-size:13px;color:var(--soft);letter-spacing:.02em}
+.question{font-family:var(--serif);font-weight:500;font-size:clamp(25px,3vw,42px);line-height:1.32;letter-spacing:-.03em;margin-bottom:clamp(20px,2.6vw,32px);word-break:keep-all}
+.lead{color:var(--soft);line-height:1.8;max-width:680px;word-break:keep-all;font-size:15px}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{position:relative;min-height:92px;text-align:left;border:1px solid rgba(245,239,226,.2);background:rgba(4,7,6,.3);border-radius:14px;padding:15px 44px 15px 17px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:10px;transition:background .25s,border-color .25s,color .25s,transform .25s}
+.opt i{font-style:normal;font-family:var(--display);font-size:13px;letter-spacing:.14em;opacity:.55}
+.opt b{font-weight:500;font-size:15.5px;line-height:1.45;word-break:keep-all}
+.opt .tick{position:absolute;right:13px;top:13px;width:22px;height:22px;border-radius:50%;border:1px solid rgba(245,239,226,.35);transition:.25s}
+.opt .tick:after{content:"";position:absolute;left:7px;top:3.5px;width:5px;height:10px;border:solid var(--cream);border-width:0 1.6px 1.6px 0;transform:rotate(45deg) scale(.4);opacity:0;transition:.25s}
+.opt:hover{border-color:rgba(245,239,226,.6);background:rgba(4,7,6,.45);transform:translateY(-2px)}
+.opt[aria-pressed=true]{background:rgba(245,239,226,.92);color:var(--ink);border-color:var(--cream);text-shadow:none;box-shadow:0 0 28px rgba(255,236,190,.35)}
+.opt[aria-pressed=true] i{opacity:.6}
+.opt[aria-pressed=true] .tick{background:var(--ink);border-color:var(--ink)}
+.opt[aria-pressed=true] .tick:after{opacity:1;transform:rotate(45deg) scale(1)}
+.hintrow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 20px;margin-top:18px;font-size:13px;color:var(--soft)}
+.next{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:99px;border:1px solid rgba(245,239,226,.45);
+  font-family:var(--display);letter-spacing:.18em;font-size:13px;color:var(--cream);opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity .4s,transform .4s,background .25s}
+.next:before{content:"";position:absolute;inset:0;background:rgba(245,239,226,.22);transform:scaleX(0);transform-origin:left}
+.next span{position:relative}
+.answered .next{opacity:1;pointer-events:auto;transform:none}
+.next:hover{background:rgba(245,239,226,.12)}
+.advancing .next:before{animation:fill var(--adv,1400ms) linear forwards}
+@keyframes fill{to{transform:scaleX(1)}}
+.mbti-options{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
+.mbti-option{min-height:62px;border:1px solid rgba(245,239,226,.2);background:rgba(4,7,6,.3);border-radius:14px;font-family:var(--display);font-size:20px;letter-spacing:.14em;transition:.25s}
+.mbti-option:hover{border-color:rgba(245,239,226,.45);background:rgba(245,239,226,.09)}
+.mbti-option[aria-pressed=true]{background:rgba(245,239,226,.92);color:var(--ink);border-color:var(--cream);text-shadow:none;box-shadow:0 0 28px rgba(255,236,190,.35)}
+.mbti-option:last-child{grid-column:1/-1;font-family:var(--sans);font-size:15px;letter-spacing:.04em}
+.final .card{text-align:center}
+.final h2{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.4vw,46px);letter-spacing:-.03em;margin:10px 0 14px}
+.final .lead{margin:0 auto}
+.missing{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.missing button{border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:13px}
+.missing button:hover{background:rgba(245,239,226,.1)}
+.cta{display:inline-flex;align-items:center;gap:12px;margin-top:28px;height:54px;padding:0 28px;border-radius:99px;background:var(--cream);color:var(--ink);font-weight:700;letter-spacing:.04em;transition:transform .25s,opacity .25s}
+.cta:hover:not(:disabled){transform:translateY(-2px)}
+.cta:disabled{opacity:.35}
+.ghost{display:inline-flex;align-items:center;height:50px;padding:0 24px;border-radius:99px;border:1px solid rgba(245,239,226,.5);font-weight:500}
+.ghost:hover{background:rgba(245,239,226,.1)}
+
+/* ---------- results ---------- */
+.results{padding:120px 20px 120px}
+.results.locked{display:none}
+.wrap{max-width:1100px;margin:auto}
+.results .head{background:var(--glass2);border:1px solid rgba(245,239,226,.11);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:22px;padding:clamp(24px,3vw,40px);opacity:0;transform:translateY(30px);transition:1s ease}
+.results.seen .head{opacity:1;transform:none}
+.results .k{font-family:var(--display);letter-spacing:.32em;font-size:14px;opacity:.7}
+.results h2.title{font-family:var(--serif);font-weight:500;font-size:clamp(36px,5vw,64px);letter-spacing:-.04em;margin:10px 0 18px;word-break:keep-all}
+.results .lead{margin-bottom:22px}
+.mbti-result{display:inline-flex;gap:14px;align-items:center;padding:11px 18px;border:1px solid var(--line);background:rgba(245,239,226,.06);border-radius:99px;font-size:14px}
+.mbti-result strong{font-family:var(--display);font-size:20px;letter-spacing:.14em;font-weight:400}
+.panel{background:var(--glass2);border:1px solid rgba(245,239,226,.11);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:28px;border-radius:20px}
+.panel h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.02em;margin-bottom:18px}
+.resultHero{height:540px;position:relative;background-color:rgba(6,10,9,.7);background-size:cover;background-position:center 48%;margin:28px 0 16px;border-radius:22px;overflow:hidden;border:1px solid rgba(245,239,226,.18)}
+.resultHero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 80%)}
+.heroCopy{position:absolute;z-index:2;left:34px;right:34px;bottom:30px;max-width:620px}
+.heroCopy h3{font-family:var(--serif);font-weight:500;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.03em;margin:8px 0}
+.heroCopy p{color:rgba(245,239,226,.82);line-height:1.75;word-break:keep-all}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bars{display:grid;gap:12px}
+.barrow{display:grid;grid-template-columns:118px 1fr 44px;gap:12px;align-items:center;font-size:13.5px}
+.barrow b{font-weight:500}
+.bar{height:4px;background:rgba(245,239,226,.14);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--cream);border-radius:4px}
+.barrow span{text-align:right;font-family:var(--display);letter-spacing:.06em;color:var(--soft)}
+.scoreNote{font-size:12px;color:var(--faint);margin-top:16px;line-height:1.6}
+.radarWrap{display:grid;place-items:center;min-height:360px}
+.radarWrap canvas{width:min(100%,430px);height:auto}
+.analysis{margin-top:16px}
+.quote{font-family:var(--serif);font-size:clamp(19px,2vw,23px);line-height:1.7;letter-spacing:-.02em;word-break:keep-all}
+.quote b{font-weight:600;color:#ffe7b8}
+.analysis p{line-height:1.85;color:var(--soft);margin:16px 0;word-break:keep-all}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:rgba(245,239,226,.1);border:1px solid rgba(245,239,226,.12);padding:6px 12px;border-radius:99px;font-size:12.5px}
+.insightGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px}
+.insightGrid .panel{position:relative;overflow:hidden;padding-top:196px}
+.insightGrid .panel:before{content:"";position:absolute;left:0;right:0;top:0;height:170px;background-size:cover;background-position:center;opacity:.85}
+.insightGrid .panel:after{content:"";position:absolute;left:0;right:0;top:0;height:170px;background:linear-gradient(0deg,rgba(6,10,9,.95),rgba(6,10,9,0) 70%);pointer-events:none}
+.insightGrid .panel:nth-child(1):before{background-image:url('https://images.unsplash.com/photo-1782814247218-8167f19ba75e?auto=format&fit=crop&fm=jpg&q=80&w=1400')}
+.insightGrid .panel:nth-child(2):before{background-image:url('https://images.unsplash.com/photo-1783142513340-91ca7a15ee4b?auto=format&fit=crop&fm=jpg&q=80&w=1400')}
+.insightGrid .panel:nth-child(3):before{background-image:url('https://images.unsplash.com/photo-1777044803212-f552af7411b7?auto=format&fit=crop&fm=jpg&q=80&w=1400')}
+.insightGrid .panel:nth-child(4):before{background-image:url('https://images.unsplash.com/photo-1777550967874-c597de0884b6?auto=format&fit=crop&fm=jpg&q=80&w=1400')}
+.insightGrid h3{font-family:var(--serif);font-weight:500;font-size:21px;margin-bottom:10px}
+.insightGrid ul{padding-left:18px}
+.insightGrid li{color:var(--soft);line-height:1.7;margin:6px 0;word-break:keep-all}
+.picked{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:16px}
+.pick{background:rgba(6,10,9,.5);border:1px solid rgba(245,239,226,.1);border-radius:14px;padding:15px 17px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.pick small{color:var(--faint);font-size:12px}
+.pick b{display:block;margin-top:5px;font-weight:500;line-height:1.5;word-break:keep-all}
+.sub{font-family:var(--serif);font-weight:500;font-size:24px;letter-spacing:-.02em;margin-top:40px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.rsec{opacity:0;transform:translateY(30px);transition:opacity .9s ease,transform 1s ease}
+.rsec.seen{opacity:1;transform:none}
+
+/* ---------- small screens ---------- */
+@media (max-width:1000px){.options{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){
+  .q,#final{margin-top:80vh;margin-top:80svh}
+  :root{--u:1px}
+  header{padding:18px 18px 26px}
+  .logo{font-size:19px}.logo small{display:none}
+  nav a:not(.pill){display:none}
+  .pill{height:40px;padding:0 18px;font-size:12px}
+  h1{font-size:clamp(58px,17vw,96px);white-space:normal}
+  .kick{font-size:12px;letter-spacing:.3em}
+  .cap{font-size:20px}
+  .corner{left:20px;right:20px;justify-content:center;bottom:30px;font-size:11px;transition:right .4s}
+  body.scrolled .corner{left:auto;right:14px;bottom:14px}
+  body.scrolled .corner .hint,body.scrolled .corner i{display:none}
+  .sound{width:40px;height:40px;padding:9px;border-radius:50%;background:rgba(0,0,0,.45)}
+  header{background:linear-gradient(rgba(0,0,0,.8),rgba(0,0,0,.55) 60%,rgba(0,0,0,0))}
+  .progress{top:64px;font-size:12px}
+  .progress .bar{width:120px}
+  .block{padding:120px 14px 70px}
+  .grid,.insightGrid,.picked{grid-template-columns:1fr}
+  .resultHero{height:420px}
+  .heroCopy{left:22px;right:22px;bottom:22px}
+}
+@media (max-width:520px){
+  .options{grid-template-columns:1fr}
+  .opt{min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;padding:14px 44px 14px 15px}
+  .opt .tick{top:50%;margin-top:-11px}
+  .mbti-options{grid-template-columns:repeat(2,1fr)}
+  .barrow{grid-template-columns:96px 1fr 40px;font-size:12.5px}
+}
+@media (min-width:821px) and (max-height:760px){
+  .block{padding-top:96px;padding-bottom:60px}
+  .opt{min-height:78px;padding-top:12px;padding-bottom:12px}
+  .question{margin-bottom:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .loader span,.grain,.answered .next{animation:none}
+  .card,.rsec,.results .head{transition:opacity .4s ease;transform:none}
+}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="valley" aria-hidden="true"></div>
+
+<div class="chrome" id="chrome">
+  <header>
+    <a class="logo" href="#top" data-jump="top">사람과 공간<small>PEOPLE × SPACE</small></a>
+    <nav aria-label="Main">
+      <a href="#mbti" data-jump="mbti">MBTI</a>
+      <a href="#q1" data-jump="survey">설문</a>
+      <a href="#final" data-jump="final">결과</a>
+      <a class="pill" href="#mbti" data-jump="mbti">탐색 시작</a>
+    </nav>
+    <div class="progress" aria-live="polite"><span id="progText">응답 00 / 19</span><span class="bar"><i id="progBar"></i></span></div>
+  </header>
+  <div class="corner"><span class="hint">스크롤하며 걷기</span><i></i>
+    <button class="sound" id="sound" aria-pressed="false" aria-label="배경 소리 켜기/끄기"><svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5Z"/><path class="w" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="x" d="m16 10 4 4m0-4-4 4"/></svg></button>
+  </div>
+</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="kick reveal-hero">LANDSCAPE PREFERENCE RESEARCH</div>
+    <h1 class="reveal-hero">People × Landscape</h1>
+    <p class="cap reveal-hero">사람의 선택이,<br>하나의 풍경이 됩니다.</p>
+    <a class="go reveal-hero" href="#mbti" id="go" data-jump="mbti" aria-label="탐색 시작"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a>
+  </section>
+
+  <section class="block" id="mbti">
+    <div class="card">
+      <div class="meta"><span class="qn">BEFORE WE WANDER</span><span class="cat">시작 전 · MBTI</span></div>
+      <h2 class="question">나의 MBTI를 선택해 주세요</h2>
+      <p class="lead">19개 공간 항목에서 각각 9개의 선택지 중 마음에 드는 것을 모두 고르세요. 스크롤을 내릴 때마다 계곡 안쪽으로 걸어 들어가며 다음 질문이 이어집니다. 검사를 해보지 않았거나 기억나지 않는다면 마지막 ‘모름’을 선택해 주세요.</p>
+      <div id="mbtiOptions" class="mbti-options" role="group" aria-label="MBTI 유형 선택"></div>
+      <div class="hintrow"><span id="mbtiStatus">유형을 선택하면 아래로 설문이 열려요.</span><button class="next" type="button" data-adv="-1"><span>첫 질문으로 ↓</span></button></div>
+    </div>
+  </section>
+
+  <div id="questions"></div>
+
+  <section class="block final locked" id="final">
+    <div class="card">
+      <div class="qn">END OF THE VALLEY</div>
+      <h2 id="finalTitle">19개 문항을 모두 마쳤어요</h2>
+      <p class="lead" id="finalLead">지금까지 고른 키워드로 공간 선호를 분석합니다.</p>
+      <div class="missing" id="missing"></div>
+      <button class="cta" id="analyzeBtn" type="button">최종 분석 보기 <span aria-hidden="true">↓</span></button>
+    </div>
+  </section>
+
+  <section class="results locked" id="results">
+    <div class="wrap">
+      <div class="head">
+        <div class="k">YOUR LANDSCAPE PROFILE</div>
+        <h2 class="title">당신에게 가장 어울리는 공간</h2>
+        <p class="lead">19개 문항의 복수 선택을 문항별 동일 비중으로 환산하여 9가지 공간 성향을 분석했습니다. 많이 고른 문항 하나가 전체 결과를 과도하게 좌우하지 않도록 각 문항의 선택 비중을 나누어 계산합니다.</p>
+        <div class="mbti-result"><span>선택한 MBTI</span><strong id="resultMbti"></strong></div>
+      </div>
+      <div id="resultHero" class="resultHero rsec"><div class="heroCopy"><div class="k">BEST MATCH LANDSCAPE</div><h3 id="heroTitle"></h3><p id="heroSub"></p><div id="heroTags" class="chips" style="margin-top:14px"></div></div></div>
+      <div class="grid rsec">
+        <div class="panel"><h2>당신의 공간 선호도 분석</h2><div id="bars" class="bars"></div><div class="scoreNote">※ 각 문항을 100점으로 보고 복수 선택 시 선택한 항목끼리 동일하게 점수를 나누어 합산한 상대 선호도입니다.</div></div>
+        <div class="panel"><h2>9가지 공간 성향 레이더</h2><div class="radarWrap"><canvas id="radar" width="860" height="860"></canvas></div></div>
+      </div>
+      <div class="panel analysis rsec"><div class="k">SYNTHESIS</div><h2 style="margin-top:8px">종합 공간 해석</h2><div id="sentence" class="quote"></div><p id="aiText"></p><div id="chips" class="chips"></div></div>
+      <div class="insightGrid rsec">
+        <div class="panel"><h3>추천하는 공간</h3><ul id="rec"></ul></div>
+        <div class="panel"><h3>피하고 싶은 공간</h3><ul id="avd"></ul></div>
+        <div class="panel"><h3>힐링 되는 상황</h3><ul id="heal"></ul></div>
+        <div class="panel"><h3>공간 설계 포인트</h3><ul id="designTips"></ul></div>
+      </div>
+      <h3 class="sub rsec">당신이 직접 고른 19개 문항의 키워드</h3>
+      <div id="picked" class="picked rsec"></div>
+      <div class="actions"><button class="cta" style="margin-top:0" id="restartBtn" type="button">다시 설문하기</button><button class="ghost" type="button" data-jump="top">처음으로 ↑</button></div>
+    </div>
+  </section>
+</main>
+
+<div class="loader" id="loader"><span></span></div>
+
+<script>
+const data=[{"cat": "공간적 욕구", "q": "공간에서 가장 중요하게 느끼는 욕구는 무엇인가요?", "a": ["질서·규칙·청결", "관계 형성·상호작용", "성과·고급성·외적 인정", "감성·개성 표현", "독립성·정보 접근", "안정감·신뢰성", "자극·자유로움", "자기 통제·강인함", "평온함·자연성"]}, {"cat": "선호 시설", "q": "어떤 시설이 갖춰진 공간을 가장 선호하나요?", "a": ["분리형 주방·샤워실·안내 표지판", "공동 주방·대화 공간", "프리미엄 글램핑·포토존", "감성 조명·개인 감상 공간", "독서존·가림막·정보부스", "CCTV·비상벨·관리자소", "체험존·이동형 공연", "운동존·방풍텐트", "명상 덱·수면존"]}, {"cat": "공간 설계", "q": "어떤 방식으로 설계된 공간이 가장 마음에 드나요?", "a": ["규칙적 배치·질서 강조", "오픈형 배치·소통 중심", "SNS 동선·고급감 강화", "감성 공간 배치", "차폐·정보 강조", "안전 가시성 확보", "이벤트 중심 설계", "자율 제어 구조", "자극 최소 설계"]}, {"cat": "조경 디자인", "q": "어떤 조경 디자인을 가장 선호하나요?", "a": ["직선 경로·정돈된 식재", "원형 배치·개방 공간", "고급 자재·조형물", "곡선 경로·미적 디테일", "차음 수림대·울타리", "낮은 수목·조명 중심", "다층 식재·넓은 잔디", "울타리·내구성 식재", "자연형 수로·향기 식물"]}, {"cat": "공간 운용 전략", "q": "공간이 어떤 방식으로 운영될 때 가장 만족스럽나요?", "a": ["정기 청소·질서 관리", "커뮤니티 프로그램", "프리미엄 예약제", "감성 프로그램 제공", "정숙 운영·정보 배포", "24시간 관리", "놀이·이벤트 운영", "예약 기반 운영", "자연 치유 프로그램"]}, {"cat": "선호 활동", "q": "공간에서 가장 하고 싶은 활동은 무엇인가요?", "a": ["정리·독서", "요리 나눔·대화", "사진 촬영·체험", "일기·자연 감상", "독서·관찰·글쓰기", "안내 경로 따라 탐방", "체험·퍼포먼스", "개인 트레이닝", "명상·산책"]}, {"cat": "불편하거나 피하고 싶은 공간", "q": "다음 중 가장 피하고 싶은 공간은 무엇인가요?", "a": ["지저분함·무질서", "단절된 공간·차가운 분위기", "시설 부족·단순함", "공간 획일화", "소음·정보 부족", "혼란·불투명성", "지루함·제약", "통제 불가", "혼잡·인공적 느낌"]}, {"cat": "주요 동행 유형", "q": "이 공간을 누구와 함께 이용하고 싶나요?", "a": ["가족(아이 포함)", "친구·지인", "연인·동료", "혼자·감성적 친구", "혼자", "가족·안전 중심", "다양한 친구", "동료·경쟁자", "반려동물·혼자"]}, {"cat": "공간에서의 주요 감정 상태", "q": "공간에서 가장 느끼고 싶은 감정은 무엇인가요?", "a": ["안정·예측 가능", "따뜻함·연결감", "인정·성취감", "위로·감성 자극", "호기심·집중", "신뢰·보호감", "흥미·유쾌함", "자기 효능감", "평온·안정"]}, {"cat": "환경 선호 조건", "q": "어떤 자연환경에 놓인 공간을 가장 선호하나요?", "a": ["평지·숲 경계", "나무 아래·개방 숲", "전망 좋은 언덕", "자연과 가까운 언덕", "차폐형 수림지", "안전한 숲 가장자리", "넓은 잔디 공간", "바람 적은 개활지", "조용한 수변"]}, {"cat": "선호 소리", "q": "공간에서 어떤 소리를 가장 선호하나요?", "a": ["물소리·정적", "사람 목소리", "음악·북소리", "자연의 속삭임", "새소리", "차분한 소리", "다채로운 소리", "조용한 환경", "자연 음향"]}, {"cat": "선호 조명 환경", "q": "어떤 조명 환경에서 가장 편안함을 느끼나요?", "a": ["은은한 조명", "따뜻한 조명", "강조 조명", "감성 조명", "자연광", "보안 중심 조명", "이벤트 조명", "기능성 조명", "어두운 은은한 조명"]}, {"cat": "이동 동선 선호", "q": "어떤 이동 동선을 가장 선호하나요?", "a": ["선형", "자연스러운 곡선", "동선 중심", "비정형 자유형", "최단거리 선호", "명확한 안내 동선", "복합 자유동선", "직관적 통제 동선", "느긋한 완만한 동선"]}, {"cat": "선호 공간 크기", "q": "어떤 크기와 개방감의 공간을 가장 선호하나요?", "a": ["넓은 정돈 공간", "중간·소통 중심 공간", "넓고 확장 가능", "작고 감성적", "작은 독립 공간", "중간 크기 안정 공간", "넓고 자유로운 공간", "넓은 개방 공간", "아늑한 소형 공간"]}, {"cat": "식재 밀도 선호", "q": "어떤 식재 밀도가 가장 마음에 드나요?", "a": ["낮은 밀도·질서", "중간 밀도·자연스러움", "심미적 배치", "자연 밀도·비대칭", "높은 밀도·차폐", "중간 밀도·안전 중심", "다양한 밀도", "균형된 밀도", "자연형 높은 밀도"]}, {"cat": "공간 사용 방식 및 사용 습관", "q": "공간을 어떤 방식으로 사용하는 것을 가장 선호하나요?", "a": ["혼자 조용히 사용", "다른 사람과 함께 사용", "혼자 또는 함께 모두 선호", "혼자 몰입", "혼자 조용히 사용", "혼자 또는 함께 활동", "다른 사람과 함께 활동", "혼자 활동", "혼자 조용히 휴식"]}, {"cat": "마음이 편안해지는 공간", "q": "어떤 공간에서 마음이 가장 편안해지나요?", "a": ["정돈된 구조", "따뜻한 관계", "성과와 인정이 느껴지는 공간", "감성 자극", "정적·정보 환경", "보호받는 느낌", "재미와 활력을 주는 공간", "도전과 성취가 가능한 공간", "마음이 쉬어지는 공간"]}, {"cat": "공간에서의 행동 특성", "q": "공간에 머물 때 나와 가장 가까운 행동은 무엇인가요?", "a": ["점검·정리", "대화·쉼", "체험·공유", "표현·몰입", "관찰·기록", "순응·따름", "탐색·참여", "실행·지시", "이완·감상"]}, {"cat": "공간 관계 선호 방식", "q": "나와 공간의 관계를 가장 잘 설명하는 방식은 무엇인가요?", "a": ["공간과 규칙의 관계", "공간과 사람의 연결", "공간과 성취의 매개", "공간과 감정 교류", "공간과 정보 습득", "공간과 신뢰 형성", "공간과 즐거움 공유", "공간과 통제 구조", "공간과 휴식의 일체"]}],labels=["질서·정돈", "관계·소통", "성과·상징", "감성·개성", "독립·정보", "안전·신뢰", "자유·경험", "통제·주도", "평온·자연"],descriptions=["정돈된 구조와 명확한 질서가 있는 공간을 반복적으로 선택했습니다. 직선 동선, 정돈된 식재, 깨끗한 시설처럼 예측 가능한 환경에서 안정감이 커집니다.", "사람과 자연스럽게 만나고 함께 머무는 공간을 중요하게 선택했습니다. 열린 휴게 공간, 공동 활동, 따뜻한 분위기가 공간 만족도를 높입니다.", "완성도와 상징성, 특별한 경험이 느껴지는 공간을 선호합니다. 전망, 조형 요소, 세련된 재료와 사진에 남기기 좋은 장면이 잘 맞습니다.", "빛과 분위기, 곡선과 디테일처럼 감정과 개성을 자극하는 공간을 선호합니다. 장소만의 이야기와 감성적인 장면이 중요합니다.", "혼자 집중하고 관찰할 수 있으며 정보와 프라이버시가 확보되는 공간을 선호합니다. 차폐와 독립적인 머무름이 핵심입니다.", "안전하고 예측 가능하며 관리 상태를 신뢰할 수 있는 공간을 선호합니다. 명확한 안내, 가시성, 안정적인 시설이 중요합니다.", "새로운 장면과 다양한 활동을 발견할 수 있는 자유로운 공간을 선호합니다. 넓은 잔디, 복합 동선, 변화감 있는 조경과 잘 맞습니다.", "공간을 스스로 이해하고 주도적으로 사용할 수 있는 구조를 선호합니다. 넓은 시야, 기능적으로 명확한 구역, 선택 가능한 동선이 잘 맞습니다.", "조용한 자연, 완만한 동선, 물과 식재처럼 긴장을 낮춰주는 풍경을 선호합니다. 머무름과 휴식 자체가 중요한 공간 유형입니다."],recommend=[["정돈형 숲 캠핑장", "규칙적인 정원형 캠핑장", "깔끔한 독립 사이트"], ["커뮤니티 캠핑장", "공동 라운지가 있는 숲 공간", "피크닉·대화 중심 공원"], ["프리미엄 글램핑", "전망형 테라스 캠핑장", "랜드마크형 야외 공간"], ["감성 숲 캠핑장", "곡선 산책로가 있는 정원", "조명과 풍경이 좋은 휴식 공간"], ["독립형 숲 사이트", "조용한 독서·관찰 공간", "차폐된 소규모 휴식처"], ["관리형 가족 캠핑장", "안내가 명확한 자연휴양림", "안전 가시성이 좋은 숲 공간"], ["체험형 캠핑장", "넓은 잔디·이벤트 공간", "다양한 길이 연결된 자연공원"], ["자율형 독립 사이트", "운동·활동 중심 야외 공간", "구역 조절이 가능한 캠핑장"], ["수변 자연휴양림", "조용한 숲속 캠핑장", "명상·산책 중심의 자연 공간"]],avoid=[["지저분하고 무질서한 공간", "관리 기준이 불분명한 장소"], ["사람과 단절된 차가운 공간", "교류할 장소가 전혀 없는 곳"], ["시설이 부족하고 지나치게 단순한 공간", "특별한 장면이 없는 장소"], ["획일적이고 개성이 없는 공간", "감성 요소가 거의 없는 장소"], ["소음이 많고 정보가 부족한 공간", "프라이버시가 없는 장소"], ["혼란스럽고 관리가 불투명한 공간", "안전 확인이 어려운 장소"], ["지루하고 제약이 많은 공간", "활동 선택지가 적은 장소"], ["통제가 어렵고 동선이 혼란한 공간", "자율성이 낮은 장소"], ["혼잡하고 인공적인 공간", "소음과 자극이 강한 장소"]],healing=[["정돈된 숲에서 조용히 독서하기", "깔끔한 산책로 걷기"], ["친한 사람과 요리하고 대화하기", "따뜻한 공용 공간에서 쉬기"], ["전망 좋은 곳에서 사진과 체험 즐기기", "완성도 높은 공간을 천천히 둘러보기"], ["감성 조명 아래 자연 감상하기", "일기 쓰며 풍경에 몰입하기"], ["혼자 관찰·기록·독서하기", "차폐된 자리에서 조용히 머물기"], ["안내된 산책로를 편안하게 걷기", "안전한 숲 가장자리에서 쉬기"], ["넓은 잔디에서 새로운 활동 즐기기", "친구들과 체험·퍼포먼스 참여하기"], ["혼자 운동하거나 목표 활동하기", "내 방식대로 공간을 활용하기"], ["물소리를 들으며 천천히 산책하기", "나무 아래에서 아무것도 하지 않고 쉬기"]],visuals=["https://images.unsplash.com/photo-1779418419321-9d11517114ea?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1603124644006-c1cb7d0c263b?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1611870030175-7c0086fdb1ae?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1516705416642-fa4f130a0bb3?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1680756821519-52265ee9ae62?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1778834604138-24c8fb1efefc?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1772306610958-b735e12443a8?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1779975273378-d41ce10304e2?auto=format&fit=crop&fm=jpg&q=88&w=2400", "https://images.unsplash.com/photo-1782923825115-34d42fed5cd5?auto=format&fit=crop&fm=jpg&q=88&w=2400"];
+</script>
+<script>
+/* ================= survey: one continuous scroll ================= */
+const mbtiTypes=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP','모름'];
+const N=data.length;
+let selectedMbti=null,answers=Array.from({length:N},()=>[]),revealed=-1,finalOpen=false;
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+
+$('mbtiOptions').innerHTML=mbtiTypes.map(t=>`<button class="mbti-option" type="button" data-mbti="${t}" aria-pressed="false">${t}</button>`).join('');
+$('questions').innerHTML=data.map((x,qi)=>`<section class="block q locked" id="q${qi+1}" data-q="${qi}">
+ <div class="card">
+  <div class="meta"><span class="qn">QUESTION ${pad(qi+1)} <em>/ ${N}</em></span><span class="cat">${x.cat} · 복수 선택 가능</span></div>
+  <h2 class="question">${x.q}</h2>
+  <div class="options" role="group" aria-label="${x.cat}">${x.a.map((a,i)=>`<button class="opt" type="button" data-q="${qi}" data-i="${i}" aria-pressed="false"><i>${pad(i+1)}</i><b>${a}</b><span class="tick" aria-hidden="true"></span></button>`).join('')}</div>
+  <div class="hintrow"><span class="count">고르면 잠시 뒤 다음 질문으로 넘어가요.</span><button class="next" type="button" data-adv="${qi}"><span>${qi===N-1?'결과로 ↓':'다음 질문 ↓'}</span></button></div>
+ </div></section>`).join('');
+const qSecs=[...document.querySelectorAll('.q')];
+
+/* ---------- auto-advance: pick → short pause (time to pick more) → glide to the next question ---------- */
+const ADV=2500;let advT=null,advCard=null,tween=0;
+document.documentElement.style.setProperty('--adv',ADV+'ms');
+function fresh(q){return q===N-1?$('results').classList.contains('locked'):!answers[q+1].length}
+function cancelAdv(){clearTimeout(advT);advT=null;if(advCard)advCard.classList.remove('advancing');advCard=null}
+function schedule(q,ms){
+  cancelAdv();
+  advCard=(q<0?$('mbti'):qSecs[q]).querySelector('.card');
+  advCard.classList.remove('advancing');void advCard.offsetWidth;
+  advCard.style.setProperty('--adv',ms+'ms');advCard.classList.add('advancing');
+  advT=setTimeout(()=>advanceFrom(q),ms);
+}
+function advanceFrom(q){
+  cancelAdv();
+  if(q<0){if(selectedMbti)flyTo(qSecs[0]);return}
+  if(!answers[q].length)return;
+  flyTo(q<N-1?qSecs[q+1]:$('final'));
+}
+function flyTo(el,dur=2600){
+  const target=el?Math.max(0,el.getBoundingClientRect().top+scrollY-(el.classList.contains('results')?0:Math.max(0,(innerHeight-el.offsetHeight)/2))):0;
+  const s0=scrollY,d=target-s0,t0=performance.now(),id=++tween;
+  if(Math.abs(d)<2)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){window.scrollTo(0,target);return}
+  (function step(now){
+    if(id!==tween)return;
+    const p=Math.min(1,(now-t0)/dur),e=-(Math.cos(Math.PI*p)-1)/2;
+    window.scrollTo(0,s0+d*e);
+    if(p<1)requestAnimationFrame(step);
+  })(t0);
+}
+['wheel','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{tween++;if(advT&&ev!=='keydown')cancelAdv()},{passive:true}));
+
+function pulse(){window.dispatchEvent(new CustomEvent('valley:pulse'))}
+
+function sync(){
+  // reveal questions up to the first unanswered one; never re-hide what was already opened
+  if(selectedMbti){
+    const f=answers.findIndex(a=>!a.length);
+    revealed=Math.max(revealed,f===-1?N-1:f);
+    if(f===-1)finalOpen=true;
+  }
+  qSecs.forEach((s,i)=>{
+    s.classList.toggle('locked',i>revealed);
+    const n=answers[i].length;
+    s.querySelector('.card').classList.toggle('answered',n>0);
+    s.querySelector('.count').textContent=n?`${n}개 선택됨 · 여러 개 고르려면 이어서 눌러 주세요.`:'고르면 잠시 뒤 다음 질문으로 넘어가요. 여러 개 골라도 돼요.';
+  });
+  $('mbti').querySelector('.card').classList.toggle('answered',!!selectedMbti);
+  $('mbtiStatus').textContent=selectedMbti?`선택한 MBTI: ${selectedMbti} · 언제든 다시 바꿀 수 있어요.`:'유형을 선택하면 아래로 설문이 열려요.';
+  $('final').classList.toggle('locked',!finalOpen);
+  const missing=answers.map((a,i)=>a.length?null:i).filter(v=>v!==null);
+  $('analyzeBtn').disabled=missing.length>0;
+  $('finalTitle').textContent=missing.length?`아직 ${missing.length}개 문항이 비어 있어요`:'19개 문항을 모두 마쳤어요';
+  $('finalLead').textContent=missing.length?'아래 번호를 누르면 해당 질문으로 돌아가요.':'지금까지 고른 키워드로 공간 선호를 분석합니다.';
+  $('missing').innerHTML=missing.map(i=>`<button type="button" data-goto="${i}">Q${pad(i+1)} ${data[i].cat}</button>`).join('');
+  const done=answers.filter(a=>a.length).length;
+  $('progText').textContent=`응답 ${pad(done)} / ${N}`;
+  $('progBar').style.width=`${done/N*100}%`;
+  observeNew();
+}
+
+document.addEventListener('click',e=>{
+  const o=e.target.closest('.opt');
+  if(o){
+    const q=+o.dataset.q,i=+o.dataset.i,a=answers[q],p=a.indexOf(i);
+    if(p>=0)a.splice(p,1);else{a.push(i);pulse()}
+    o.setAttribute('aria-pressed',String(p<0));
+    sync();
+    if(a.length&&fresh(q))schedule(q,ADV);else cancelAdv();
+    return;
+  }
+  const m=e.target.closest('.mbti-option');
+  if(m){
+    selectedMbti=m.dataset.mbti;
+    document.querySelectorAll('.mbti-option').forEach(b=>b.setAttribute('aria-pressed',String(b===m)));
+    pulse();sync();
+    if(!answers[0].length)schedule(-1,750);
+    return;
+  }
+  const nb=e.target.closest('[data-adv]');
+  if(nb){advanceFrom(+nb.dataset.adv);return}
+  const g=e.target.closest('[data-goto]');
+  if(g){flyTo(qSecs[+g.dataset.goto]);return}
+  const j=e.target.closest('[data-jump]');
+  if(j){
+    e.preventDefault();
+    const k=j.dataset.jump;
+    let el=null;
+    if(k==='top')el=document.body;
+    else if(k==='mbti')el=$('mbti');
+    else if(k==='survey')el=selectedMbti?qSecs[0]:$('mbti');
+    else if(k==='final')el=!$('results').classList.contains('locked')?$('results'):finalOpen?$('final'):(revealed>=0?qSecs[revealed]:$('mbti'));
+    flyTo(el===document.body?null:el);
+  }
+});
+
+/* reveal-on-enter + current question tracking */
+const io=new IntersectionObserver(es=>es.forEach(en=>{const t=en.target;if(t.classList.contains('block'))t.classList.toggle('seen',en.intersectionRatio>.18);else if(en.isIntersecting)t.classList.add('seen')}),{threshold:[0,.12,.18,.3]});
+function observeNew(){document.querySelectorAll('.block:not(.locked):not(.obs),.rsec:not(.obs),.results:not(.locked):not(.obs)').forEach(el=>{el.classList.add('obs');io.observe(el)})}
+addEventListener('scroll',()=>{
+  document.body.classList.toggle('scrolled',scrollY>innerHeight*.25);
+  document.body.classList.toggle('in-survey',scrollY>innerHeight*.6);
+},{passive:true});
+
+/* ================= analysis (same scoring as before) ================= */
+function scores(){
+  const raw=Array(9).fill(0);
+  answers.forEach(sel=>{const w=1/sel.length;sel.forEach(i=>raw[i]+=w)});
+  const max=Math.max(...raw);
+  return {raw,pct:raw.map(v=>max?Math.round(v/max*100):0)};
+}
+function radarChart(vals){
+  const c=$('radar'),ctx=c.getContext('2d');
+  ctx.setTransform(2,0,0,2,0,0);
+  const W=430,H=430,cx=W/2,cy=H/2,R=140,K=9;
+  ctx.clearRect(0,0,W,H);ctx.font="500 12px Manrope, 'Noto Sans KR', sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/K;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]};
+  for(let ring=1;ring<=5;ring++){ctx.beginPath();for(let i=0;i<K;i++){const[x,y]=pt(i,R*ring/5);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.strokeStyle="rgba(245,239,226,.14)";ctx.lineWidth=1;ctx.stroke()}
+  for(let i=0;i<K;i++){const[x,y]=pt(i,R);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.strokeStyle="rgba(245,239,226,.14)";ctx.stroke();const[lx,ly]=pt(i,R+34);ctx.fillStyle="rgba(245,239,226,.78)";ctx.fillText(`${i+1} ${labels[i]}`,lx,ly)}
+  ctx.beginPath();vals.forEach((v,i)=>{const[x,y]=pt(i,R*v/100);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();
+  ctx.fillStyle="rgba(245,239,226,.16)";ctx.fill();ctx.strokeStyle="#f5efe2";ctx.lineWidth=2;ctx.stroke();
+  vals.forEach((v,i)=>{const[x,y]=pt(i,R*v/100);ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fillStyle="#f5efe2";ctx.fill()});
+}
+function analyze(){
+  if(answers.some(x=>!x.length))return;
+  $('resultMbti').textContent=selectedMbti||'모름';
+  const {raw,pct}=scores(),order=[...raw.keys()].sort((a,b)=>raw[b]-raw[a]),max=raw[order[0]];
+  const ties=order.filter(i=>Math.abs(raw[i]-max)<1e-9),primary=ties[Math.floor(Math.random()*ties.length)];
+  const allKeywords=answers.flatMap((sel,qi)=>sel.map(i=>data[qi].a[i]));
+  const top3=order.slice(0,3);
+  $('resultHero').style.backgroundImage=`url("${visuals[primary]}")`;
+  $('heroTitle').textContent=labels[primary]+' 중심의 공간';
+  $('heroSub').textContent=descriptions[primary];
+  $('heroTags').innerHTML=top3.map(i=>`<span class="chip">${labels[i]} ${pct[i]}%</span>`).join('');
+  $('bars').innerHTML=order.map(i=>`<div class="barrow"><b>${i+1} · ${labels[i]}</b><div class="bar"><i style="width:${pct[i]}%"></i></div><span>${pct[i]}%</span></div>`).join('');
+  radarChart(pct);
+  const focus=top3.map(i=>labels[i]).join(' · ');
+  const sample=allKeywords.slice(0,8).join(', ');
+  $('sentence').innerHTML=`“${focus}의 조합이 강하며, <b>${sample}</b> 같은 조건에서 공간 만족도가 높아지는 사람입니다.”`;
+  $('aiText').textContent=`가장 강한 축은 ${labels[primary]}입니다. ${descriptions[primary]} 동시에 ${labels[top3[1]]}과 ${labels[top3[2]]} 성향도 함께 나타납니다. 따라서 한 가지 특징만 극단적으로 강조한 공간보다 자연환경·시설·동선·활동이 서로 균형을 이루는 장소가 더 잘 맞습니다. 이 해석은 19개 문항에서 직접 선택한 키워드와 1~9번 선택 패턴을 종합한 규칙 기반 분석입니다.`;
+  $('chips').innerHTML=allKeywords.map(k=>`<span class="chip">${k}</span>`).join('');
+  $('rec').innerHTML=recommend[primary].map(x=>`<li>${x}</li>`).join('');
+  $('avd').innerHTML=avoid[primary].map(x=>`<li>${x}</li>`).join('');
+  $('heal').innerHTML=healing[primary].map(x=>`<li>${x}</li>`).join('');
+  const tips=[
+    `주 성향인 ‘${labels[primary]}’이 느껴지는 공간 구조를 핵심으로 구성`,
+    `${labels[top3[1]]} 요소를 보조적으로 결합해 단조로움 완화`,
+    `${labels[top3[2]]} 요소를 조명·식재·동선·시설 중 최소 한 곳에 반영`,
+    `선택 키워드 중 반복되는 자연·활동·관계 조건을 실제 공간 프로그램으로 연결`
+  ];
+  $('designTips').innerHTML=tips.map(x=>`<li>${x}</li>`).join('');
+  $('picked').innerHTML=data.map((x,i)=>`<div class="pick"><small>${i+1} · ${x.cat}</small><b>${answers[i].map(a=>x.a[a]).join(' · ')}</b></div>`).join('');
+  $('results').classList.remove('locked');
+  observeNew();
+  pulse();
+  requestAnimationFrame(()=>flyTo($('results'),1500));
+}
+$('analyzeBtn').addEventListener('click',analyze);
+$('restartBtn').addEventListener('click',()=>{
+  selectedMbti=null;answers=Array.from({length:N},()=>[]);revealed=-1;finalOpen=false;
+  document.querySelectorAll('[aria-pressed=true]:not(#sound)').forEach(b=>b.setAttribute('aria-pressed','false'));
+  $('results').classList.add('locked');
+  cancelAdv();flyTo(null,1600);
+  setTimeout(sync,1700);
+});
+
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+window.scrollTo(0,0);
+sync();
+
+
+/* ================= ambient sound (generated, no audio files) ================= */
+const sound=(()=>{
+  let ctx,master,lp,on=false,hover=false;
+  function build(){
+    ctx=new (window.AudioContext||window.webkitAudioContext)();
+    master=ctx.createGain();master.gain.value=0;
+    lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=16000;lp.Q.value=.4;
+    lp.connect(master);master.connect(ctx.destination);
+    // wind: looping noise through a wandering band-pass
+    const len=ctx.sampleRate*4,buf=ctx.createBuffer(1,len,ctx.sampleRate),ch=buf.getChannelData(0);
+    let b=0;for(let i=0;i<len;i++){b=(b+.02*(Math.random()*2-1))/1.02;ch[i]=b*3.2}
+    const n=ctx.createBufferSource();n.buffer=buf;n.loop=true;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=520;bp.Q.value=.7;
+    const wg=ctx.createGain();wg.gain.value=.22;
+    const l1=ctx.createOscillator(),l1g=ctx.createGain();l1.frequency.value=.07;l1g.gain.value=260;l1.connect(l1g);l1g.connect(bp.frequency);
+    const l2=ctx.createOscillator(),l2g=ctx.createGain();l2.frequency.value=.11;l2g.gain.value=.1;l2.connect(l2g);l2g.connect(wg.gain);
+    n.connect(bp);bp.connect(wg);wg.connect(lp);n.start();l1.start();l2.start();
+    // pad: soft open fifths that breathe
+    [110,164.81,220,277.18,329.63].forEach((f,i)=>{
+      const o=ctx.createOscillator();o.type=i%2?'sine':'triangle';o.frequency.value=f;o.detune.value=(Math.random()-.5)*8;
+      const g=ctx.createGain();g.gain.value=.018;
+      const l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=.03+i*.013;lg.gain.value=.014;l.connect(lg);lg.connect(g.gain);
+      o.connect(g);g.connect(lp);o.start();l.start();
+    });
+    // sparse chimes with an echo
+    const dl=ctx.createDelay(2);dl.delayTime.value=.62;const fb=ctx.createGain();fb.gain.value=.42;
+    const dw=ctx.createGain();dw.gain.value=.5;dl.connect(fb);fb.connect(dl);dl.connect(dw);dw.connect(lp);
+    const notes=[659.25,739.99,880,987.77,1108.73,1318.5];
+    (function chime(){
+      const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='sine';o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+3.2);
+      o.connect(g);g.connect(lp);g.connect(dl);o.start(t);o.stop(t+3.4);
+      setTimeout(chime,2600+Math.random()*5200);
+    })();
+  }
+  function apply(){
+    if(!ctx)return;const t=ctx.currentTime;
+    master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(on?.75:0,t+1.6);
+    lp.frequency.cancelScheduledValues(t);lp.frequency.setValueAtTime(lp.frequency.value,t);lp.frequency.exponentialRampToValueAtTime(hover?520:16000,t+1.1);
+  }
+  return{
+    toggle(){if(!ctx)build();if(ctx.state==='suspended')ctx.resume();on=!on;apply();return on},
+    muffle(v){hover=v;apply()},
+    chime(){if(!ctx||!on)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=[880,987.77,1108.73,1318.5][Math.floor(Math.random()*4)];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1.8);o.connect(g);g.connect(lp);o.start(t);o.stop(t+2)}
+  };
+})();
+$('sound').addEventListener('click',()=>$('sound').setAttribute('aria-pressed',String(sound.toggle())));
+addEventListener('valley:pulse',()=>sound.chime());
+const go=$('go');
+go.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){window.dispatchEvent(new CustomEvent('valley:hover',{detail:true}));sound.muffle(true)}});
+go.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){window.dispatchEvent(new CustomEvent('valley:hover',{detail:false}));sound.muffle(false)}});
+
+/* intro handshake with the valley (falls back if WebGL can't start) */
+window.__valleyLoaded=()=>$('loader').classList.add('gone');
+window.__valleyIntroDone=()=>{$('chrome').classList.add('on');document.body.classList.add('ui-on')};
+setTimeout(()=>{if(!document.body.classList.contains('ui-on')){window.__valleyLoaded();window.__valleyIntroDone()}},6000);
+</script>
+
+<script type="module">
+/* ================= night flower garden (three.js, original) ================= */
+import * as THREE from 'three';
+
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const small=Math.min(innerWidth,innerHeight)<700;
+const host=document.getElementById('valley');
+
+let renderer;
+try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'})}
+catch(e){window.__valleyLoaded();window.__valleyIntroDone();throw e}
+const isGL2=renderer.capabilities.isWebGL2;
+const floatOK=isGL2&&renderer.extensions.has('EXT_color_buffer_float');
+let DPR=Math.min(devicePixelRatio||1,small?1.5:1.6);
+renderer.setPixelRatio(DPR);
+renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x000000,1);
+host.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,200);
+
+/* ---------- shared shape of the garden ---------- */
+const GLSL_COMMON=`
+float pathX(float z){return sin(z*0.045)*4.0+sin(z*0.016+1.3)*7.0;}
+float terrainH(float dx,float z){return sin(z*0.21+dx*0.13)*0.35+sin(dx*0.31-z*0.07)*0.3+sin((dx+z)*0.5)*0.08;}
+uniform vec3 uLight,uLight2;uniform float uLightOn,uAmb;
+vec3 lightAt(vec3 p,out float c1){
+  vec2 d=p.xz-uLight.xz;c1=exp(-dot(d,d)/4.5)*uLightOn;
+  vec2 d2=p.xz-uLight2.xz;float c2=exp(-dot(d2,d2)/16.0);
+  return vec3(1.0,0.8,0.58)*c1*1.7+vec3(0.62,0.76,1.0)*c2*0.5;
+}`;
+const pathX=z=>Math.sin(z*.045)*4+Math.sin(z*.016+1.3)*7;
+const terrainH=(dx,z)=>Math.sin(z*.21+dx*.13)*.35+Math.sin(dx*.31-z*.07)*.3+Math.sin((dx+z)*.5)*.08;
+const riverDx=z=>Math.sin(z*.13+.7)*2.6+Math.sin(z*.05)*1.5;
+
+const U={
+  uTime:{value:0},uScale:{value:1},uDisp:{value:0},uWind:{value:reduce?.3:1},
+  uFogN:{value:15},uFogF:{value:30},uPulse:{value:new THREE.Vector4(0,0,0,0)},
+  uCamPos:{value:new THREE.Vector3()},uLight:{value:new THREE.Vector3(0,0,-8)},uLight2:{value:new THREE.Vector3()},
+  uLightOn:{value:0},uAmb:{value:.62},uCut:{value:isGL2?.02:.5},uSnap:{value:0},uFocusZ:{value:0}
+};
+
+/* ---------- species, read from the reference footage ---------- */
+// shape: 0 thin-petal daisy, 1 round five-petal, 2 broad notched cosmos, 3 poppy cup, 4 layered peony,
+//        5 hydrangea ball, 6 lavender spike, 7 tiny bead   | dens = flowers per unit², rad = patch radius
+const SPECIES=[
+  {n:'orange carpet',w:.13,shape:2,pet:[8,8],cols:[[1,.4,.1],[1,.52,.18],[.98,.33,.14]],cen:[.55,.18,.04],size:[.09,.14],lift:[.28,.42],dens:46,rad:[2.2,4.2],tight:.8},
+  {n:'pink phlox',w:.12,shape:1,pet:[5,5],cols:[[1,.42,.62],[.95,.32,.55],[1,.58,.74]],cen:[1,.88,.9],size:[.08,.13],lift:[.3,.46],dens:42,rad:[1.5,3]},
+  {n:'purple aster',w:.13,shape:0,pet:[12,16],cols:[[.6,.48,1],[.7,.56,1],[.52,.42,.92]],cen:[1,.8,.22],size:[.15,.25],lift:[.4,.62],dens:16,rad:[2,4]},
+  {n:'buttercup',w:.11,shape:1,pet:[5,5],cols:[[1,.8,.1],[1,.88,.28]],cen:[1,.62,.08],size:[.09,.15],lift:[.32,.5],dens:30,rad:[1.2,2.6]},
+  {n:'forget-me-not',w:.06,shape:1,pet:[5,5],cols:[[.45,.62,1],[.55,.7,1]],cen:[1,.9,.35],size:[.05,.08],lift:[.25,.38],dens:70,rad:[1.2,2.4]},
+  {n:'big cosmos',w:.07,shape:2,pet:[8,8],cols:[[.62,.46,1],[.86,.4,.82],[1,.56,.8]],cen:[1,.8,.2],size:[.34,.52],lift:[.75,1.1],dens:.9,rad:[2.5,5]},
+  {n:'poppy',w:.05,shape:3,pet:[4,4],cols:[[.95,.18,.1],[1,.48,.12]],cen:[.07,.05,.05],size:[.28,.42],lift:[.6,.95],dens:2.4,rad:[2,3.6]},
+  {n:'peony',w:.04,shape:4,pet:[6,7],cols:[[1,.66,.76],[1,.88,.84],[.95,.48,.6]],cen:[.95,.5,.55],size:[.36,.56],lift:[.5,.8],dens:1.5,rad:[1.4,2.8]},
+  {n:'hydrangea',w:.04,shape:5,pet:[4,4],cols:[[.5,.6,1],[.72,.58,1],[.85,.62,.95]],cen:[.6,.8,1],size:[.42,.66],lift:[.5,.8],dens:1.3,rad:[1.4,2.6]},
+  {n:'lavender',w:.08,shape:6,pet:[0,0],cols:[[.55,.42,.95],[.62,.48,1]],cen:[.4,.3,.8],size:[.24,.38],lift:[.5,.85],dens:11,rad:[1.5,3]},
+  {n:'white daisy',w:.07,shape:0,pet:[18,22],cols:[[.97,.95,.9],[1,.98,.94]],cen:[1,.76,.12],size:[.17,.28],lift:[.45,.7],dens:9,rad:[1.8,3.5]},
+  {n:"baby's breath",w:.05,shape:7,pet:[0,0],cols:[[1,.98,.95],[.95,.92,1]],cen:[1,1,1],size:[.04,.065],lift:[.4,.8],dens:60,rad:[1.5,3]},
+];
+const RIVER=[[2,.42],[3,.28],[9,.12],[10,.1],[11,.08]];
+const LEAF_COLS=[[.09,.2,.07],[.13,.27,.09],[.06,.16,.08],[.16,.3,.11],[.1,.22,.12]];
+
+/* ---------- chunked garden: deterministic per chunk so scrolling back shows the same flowers ---------- */
+const L=10,NCH=5;
+const FPC=small?4200:8200,LPC=small?6500:12500,PER=FPC+LPC,TOTAL=NCH*PER;
+let HALF=Math.min(24,4+27*Math.tan(Math.atan(Math.tan(THREE.MathUtils.degToRad(25))*innerWidth/innerHeight)));
+const A={pos:new Float32Array(TOTAL*3),col:new Float32Array(TOTAL*3),cen:new Float32Array(TOTAL*3),p:new Float32Array(TOTAL*4),r:new Float32Array(TOTAL*4)};
+const geo=new THREE.BufferGeometry();
+geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(TOTAL*3),3));
+const attr={
+  pos:new THREE.BufferAttribute(A.pos,3),col:new THREE.BufferAttribute(A.col,3),cen:new THREE.BufferAttribute(A.cen,3),
+  p:new THREE.BufferAttribute(A.p,4),r:new THREE.BufferAttribute(A.r,4)
+};
+geo.setAttribute('aPos',attr.pos);geo.setAttribute('aCol',attr.col);geo.setAttribute('aCen',attr.cen);geo.setAttribute('aP',attr.p);geo.setAttribute('aR',attr.r);
+Object.values(attr).forEach(a=>a.setUsage(THREE.DynamicDrawUsage));
+
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function genChunk(slot,k){
+  const R=mulberry(k*7919+104729),rnd=(a,b)=>a+(b-a)*R(),g=()=>{let u=0,v=0;while(!u)u=R();while(!v)v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v)};
+  const z0=-k*L,z1=-(k+1)*L;let i=slot*PER;const end=i+FPC;
+  const put=(dx,lift,z,c,cen,size,shape,pet,rot,j)=>{
+    A.pos[i*3]=dx;A.pos[i*3+1]=lift;A.pos[i*3+2]=z;
+    A.col[i*3]=c[0]*j[0];A.col[i*3+1]=c[1]*j[1];A.col[i*3+2]=c[2]*j[2];
+    A.cen[i*3]=cen[0];A.cen[i*3+1]=cen[1];A.cen[i*3+2]=cen[2];
+    A.p[i*4]=size;A.p[i*4+1]=shape;A.p[i*4+2]=pet;A.p[i*4+3]=rot;
+    A.r[i*4]=R();A.r[i*4+1]=R();A.r[i*4+2]=R();A.r[i*4+3]=R();i++;
+  };
+  const jit=()=>{const k=.86+R()*.26,t=R()*.12;return[k+t*.3,k,k-t*.2]};
+  const flower=(sp,c,dx,z)=>put(dx,rnd(sp.lift[0],sp.lift[1]),z,c,sp.cen,rnd(sp.size[0],sp.size[1]),sp.shape,
+    sp.pet[0]+Math.floor(R()*(sp.pet[1]-sp.pet[0]+1)),R()*6.2832,jit());
+  const pickSp=list=>{let s=R()*list.reduce((t,x)=>t+x[1],0);for(const x of list){s-=x[1];if(s<=0)return SPECIES[x[0]]}return SPECIES[list[0][0]]};
+  // 1) the winding river of flowers through the middle, in little drifts
+  const riverN=Math.floor(FPC*.24);
+  while(i<slot*PER+riverN){
+    const sp=pickSp(RIVER),c=sp.cols[Math.floor(R()*sp.cols.length)];
+    const cz=rnd(z1,z0),cx=riverDx(cz)+g()*.8,n=Math.min(slot*PER+riverN-i,8+Math.floor(R()*40));
+    for(let m=0;m<n;m++){const z=cz+g()*.9,dx=cx+g()*.75;flower(sp,c,dx,z)}
+  }
+  // 2) patches by species: dense small carpets, loose medium drifts, sparse big blooms
+  const W=SPECIES.map((s,ix)=>[ix,s.w]);
+  let guard=0;
+  while(i<end-40&&guard++<200){
+    const sp=pickSp(W),c=sp.cols[Math.floor(R()*sp.cols.length)];
+    const rad=rnd(sp.rad[0],sp.rad[1]),cz=rnd(z1-1,z0+1),cx=rnd(-HALF,HALF);
+    let n=Math.round(sp.dens*Math.PI*rad*rad*rnd(.6,1.1));n=Math.max(4,Math.min(n,end-i));
+    const mixed=R()<.25?sp.cols[Math.floor(R()*sp.cols.length)]:c;
+    for(let m=0;m<n;m++){
+      const a=R()*6.2832,rr=sp.tight?Math.sqrt(R())*rad:Math.abs(g())*rad*.55;
+      flower(sp,R()<.7?c:mixed,cx+Math.cos(a)*rr*1.25,cz+Math.sin(a)*rr);
+    }
+  }
+  while(i<end){const sp=SPECIES[11];flower(sp,sp.cols[0],rnd(-HALF,HALF),rnd(z1,z0))}
+  // 3) leaf carpet: broad leaves, grass blades and clover, in patchy shades of green
+  const lend=slot*PER+PER;
+  while(i<lend){
+    const z=rnd(z1,z0),dx=rnd(-HALF-2,HALF+2);
+    const tone=.5+.5*Math.sin(dx*.31+Math.sin(z*.21)*2)*Math.sin(z*.27+dx*.05);
+    const c=LEAF_COLS[Math.min(4,Math.floor(tone*4.99))];
+    const t=R(),shape=t<.56?10:t<.8?11:12;
+    const size=shape===11?rnd(.3,.55):shape===12?rnd(.16,.28):rnd(.22,.5);
+    const k=.75+R()*.45;
+    put(dx,shape===11?rnd(.05,.4):rnd(0,.42),z,c,c,size,shape,0,shape===11?(R()-.5)*.7:R()*6.2832,[k,k*(.95+R()*.15),k]);
+  }
+}
+const slots=new Array(NCH).fill(null);
+function updateChunks(nearZ,farZ,full){
+  const kmin=Math.floor(-nearZ/L),kmax=Math.floor(-farZ/L),need=new Set();
+  for(let k=kmin;k<=kmax;k++)need.add(k);
+  let dirty=[];
+  for(let s=0;s<NCH;s++)if(slots[s]!==null&&!need.has(slots[s]))slots[s]=null;
+  for(const k of need){
+    if(slots.includes(k))continue;
+    const s=slots.indexOf(null);if(s<0)break;
+    slots[s]=k;genChunk(s,k);dirty.push(s);
+  }
+  if(full){for(let s=0;s<NCH;s++)if(slots[s]===null){slots[s]=-99999-s;genChunk(s,slots[s])}Object.values(attr).forEach(a=>a.needsUpdate=true);return}
+  if(!dirty.length)return;
+  Object.values(attr).forEach(a=>{
+    if(a.addUpdateRange){dirty.forEach(s=>a.addUpdateRange(s*PER*a.itemSize,PER*a.itemSize))}
+    a.needsUpdate=true;
+  });
+}
+
+const flowers=new THREE.Points(geo,new THREE.ShaderMaterial({
+  uniforms:U,transparent:false,depthWrite:true,depthTest:true,alphaToCoverage:isGL2,
+  vertexShader:GLSL_COMMON+`
+  uniform float uTime,uScale,uDisp,uWind,uFogN,uFogF;uniform vec4 uPulse;uniform vec3 uCamPos;
+  attribute vec3 aPos,aCol,aCen;attribute vec4 aP,aR;
+  varying vec3 vCol,vCen,vLit;varying float vSq,vRot,vFade,vGlow,vShape,vN,vDisp,vSeed;
+  void main(){
+    float dx=aPos.x,lift=aPos.y,z=aPos.z,shape=aP.y;
+    float leaf=step(9.5,shape);
+    vec3 p=vec3(pathX(z)+dx,terrainH(dx,z)+lift,z);
+    float ph=aR.x*6.2831;
+    float gust=pow(0.5+0.5*sin(z*0.35+p.x*0.12+uTime*2.2),4.0);
+    float w=(sin(uTime*1.9+ph+p.x*0.5)*0.05+gust*0.17)*uWind;
+    p.x+=w*lift;p.z-=w*lift*0.4;
+    vec2 dd=p.xz-uLight.xz;float dl=length(dd);
+    float part=exp(-dl*dl/1.6)*uLightOn;
+    p.xz+=dd/(dl+1e-3)*part*0.3*lift;
+    float rr=distance(p.xz,uPulse.xy);
+    float ring=exp(-(rr-uPulse.z)*(rr-uPulse.z)/1.1)*uPulse.w;
+    p.y+=ring*0.45*lift*(1.0-leaf*0.6);
+    float dsp=uDisp*(1.0-leaf*0.88);
+    vec3 dir=normalize(vec3(aR.y-0.5,0.6+aR.z,aR.w-0.5));
+    float d=dsp*(0.4+aR.w*1.3);
+    p+=dir*d*2.8;p.y+=d*(0.8+aR.z*2.6)+sin(uTime*0.8+ph*3.0)*0.35*dsp;
+    p.x+=cos(uTime*0.5+ph)*0.45*dsp;
+    vec4 mv=viewMatrix*vec4(p,1.0);
+    float dist=-mv.z;
+    gl_Position=projectionMatrix*mv;
+    float sz=aP.x*(1.0+ring*0.35*(1.0-leaf));
+    sz*=mix(mix(0.62,1.0,1.0-smoothstep(9.0,24.0,dist)),1.0,leaf);
+    sz=mix(sz,0.04+aR.w*0.05,dsp*0.93);
+    gl_PointSize=dist<0.5?0.0:clamp(sz*uScale/dist,0.0,256.0);
+    vec3 v=normalize(uCamPos-p);
+    float noSq=(abs(shape-6.0)<0.5||abs(shape-11.0)<0.5)?1.0:0.0;
+    vSq=mix(clamp(v.y*(0.75+0.5*aR.y),0.3,1.0),1.0,noSq);
+    float c1;vec3 Lc=lightAt(p,c1);
+    float ao=leaf>0.5?(0.3+0.7*smoothstep(0.0,0.45,lift)):(0.72+0.28*smoothstep(0.2,0.8,lift));
+    vLit=(vec3(uAmb)*(leaf>0.5?0.85:1.0)+Lc*(leaf>0.5?0.7:1.0)+vec3(gust*0.12*uWind))*ao;
+    vGlow=leaf>0.5?c1*0.12+ring*0.12:c1*1.6+ring*1.4+dsp*0.5;
+    vFade=1.0-smoothstep(uFogN,uFogF,dist);
+    vCol=aCol;vCen=aCen;vRot=aP.w;vShape=shape;vN=aP.z;vDisp=dsp;vSeed=aR.z;
+  }`,
+  fragmentShader:`
+  uniform float uCut;
+  varying vec3 vCol,vCen,vLit;varying float vSq,vRot,vFade,vGlow,vShape,vN,vDisp,vSeed;
+  float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+  void main(){
+    vec2 q=gl_PointCoord*2.0-1.0;q.y=-q.y;
+    vec2 uv=vec2(q.x,q.y/vSq);
+    float c=cos(vRot),s=sin(vRot);
+    uv=vec2(c*uv.x-s*uv.y,s*uv.x+c*uv.y);
+    float r=length(uv),ang=atan(uv.y,uv.x);
+    int sh=int(vShape+0.5);
+    float a=0.0,sd=1.0;vec3 col=vCol;
+    vec2 Ld=normalize(vec2(-0.5,0.8));
+    vec3 L3=normalize(vec3(Ld,0.75));
+    if(sh==0){
+      float p=pow(abs(cos(ang*vN*0.5)),3.0);
+      float R=0.3+0.68*p;
+      a=1.0-smoothstep(R-0.06,R,r);
+      sd=(0.6+0.4*smoothstep(0.15,0.95,r))*(0.72+0.28*p);
+      float cr=0.27;
+      if(r<cr){float h=sqrt(1.0-r*r/(cr*cr));vec3 n=normalize(vec3(uv/cr,h));
+        col=vCen*(0.4+0.6*max(dot(n,L3),0.0))*(0.85+0.15*hash(floor(uv*40.0)));sd=1.0;a=1.0;}
+    }else if(sh==1){
+      float p=abs(cos(ang*vN*0.5));
+      float R=0.5+0.48*pow(p,0.45);
+      a=1.0-smoothstep(R-0.07,R,r);
+      sd=(0.5+0.5*smoothstep(0.0,0.4,p))*(0.72+0.28*smoothstep(0.1,0.9,r));
+      sd*=0.88+0.22*dot(normalize(uv+1e-4),Ld)*smoothstep(0.2,0.9,r);
+      if(r<0.2){col=vCen*(0.6+0.4*(1.0-r/0.2));sd=1.0;}
+    }else if(sh==2){
+      float p=abs(cos(ang*vN*0.5));
+      float R=0.38+0.6*pow(p,0.3);
+      R-=0.08*pow(abs(sin(ang*vN*1.5)),6.0)*smoothstep(0.7,1.0,p);
+      a=1.0-smoothstep(R-0.06,R,r);
+      sd=(0.48+0.52*smoothstep(0.0,0.3,p))*(0.86+0.14*cos(ang*vN*4.0))*(0.68+0.32*smoothstep(0.15,0.8,r));
+      if(r<0.19){float h=sqrt(max(1.0-r*r/0.0361,0.0));col=vCen*(0.45+0.55*h);sd=1.0;}
+    }else if(sh==3){
+      float R=0.8+0.18*pow(abs(cos(ang*2.0)),0.6);
+      a=1.0-smoothstep(R-0.06,R,r);
+      sd=(0.32+0.68*smoothstep(0.05,0.75,r))*(0.9+0.1*sin(ang*36.0+r*8.0));
+      sd*=0.78+0.32*dot(normalize(uv+1e-4),Ld)*r;
+      if(r<0.17){col=vCen;sd=0.6+0.4*step(0.5,fract(ang/6.2831*8.0));}
+    }else if(sh==4){
+      float ring=r*4.0,li=floor(ring);
+      float R=0.82+0.12*sin(ang*vN+li*1.9);
+      a=1.0-smoothstep(R-0.06,R,r);
+      float fr=fract(ring+0.18*sin(ang*vN+li*2.3));
+      sd=(0.42+0.58*smoothstep(0.0,0.55,fr))*(0.68+0.32*smoothstep(0.0,0.7,r));
+      col=mix(vCen,vCol,smoothstep(0.0,0.45,r));
+    }else if(sh==5){
+      float R=0.88+0.06*sin(ang*9.0);
+      a=1.0-smoothstep(R-0.06,R,r);
+      vec2 gq=uv*4.2;vec2 id=floor(gq);vec2 f=fract(gq)-0.5;
+      float fl=abs(cos(atan(f.y,f.x)*2.0+id.x));float fr=length(f)/(0.3+0.17*fl);
+      float h=sqrt(max(1.0-r*r,0.0));vec3 n=normalize(vec3(uv,h));
+      sd=(0.35+0.65*max(dot(n,L3),0.0))*(0.5+0.5*(1.0-smoothstep(0.7,1.0,fr)));
+      col=mix(vCol,vCen,0.5+0.5*sin(id.x*1.7+id.y*2.3));
+    }else if(sh==6){
+      float wdt=0.27*(1.0-smoothstep(0.45,1.0,abs(q.y)));
+      float bump=0.07*sin(q.y*22.0);
+      a=1.0-smoothstep(wdt+bump-0.05,wdt+bump,abs(q.x));
+      sd=(0.45+0.55*(q.y*0.5+0.5))*(0.72+0.28*sin(q.y*22.0+sign(q.x)*1.5));
+    }else if(sh==7){
+      a=1.0-smoothstep(0.62,0.8,r);
+      sd=0.7+0.3*(1.0-r)+0.2*dot(uv,Ld);
+    }else if(sh==10){
+      float t=uv.y;
+      float wdt=0.42*pow(max(1.0-t*t,0.0),0.75);
+      a=1.0-smoothstep(wdt-0.05,wdt,abs(uv.x));
+      float side=uv.x/max(wdt,0.01);
+      sd=(0.72+0.22*side)*(0.9+0.1*sin((t+abs(uv.x)*1.3)*24.0))*(0.78+0.22*(t*0.5+0.5));
+      sd+=0.22*(1.0-smoothstep(0.012,0.04,abs(uv.x)));
+    }else if(sh==11){
+      float t=q.y*0.5+0.5;float xo=0.4*t*t*(vSeed-0.5)*2.0;
+      float wdt=0.11*(1.0-t)+0.012;
+      a=1.0-smoothstep(wdt-0.025,wdt,abs(q.x-xo));
+      sd=0.4+0.6*t;
+    }else{
+      float md=9.0;
+      for(int k=0;k<3;k++){float an=float(k)*2.0944+0.5;vec2 cc=vec2(cos(an),sin(an))*0.4;md=min(md,length(uv-cc)/0.45);}
+      a=1.0-smoothstep(0.88,1.0,md);
+      sd=0.65+0.35*(1.0-md)+0.1*dot(uv,Ld);
+    }
+    float dot_=1.0-smoothstep(0.55,0.8,length(q));
+    a=mix(a,dot_,smoothstep(0.15,0.7,vDisp));
+    if(a<uCut)discard;
+    vec3 lit=col*sd*vLit;
+    lit+=col*vGlow*(0.55+0.9*smoothstep(0.2,0.9,r));
+    lit=mix(lit,(vCol*0.8+vec3(0.35,0.32,0.26))*1.35,vDisp*0.85);
+    gl_FragColor=vec4(lit*vFade,clamp((a-0.5)/max(fwidth(a),1e-3)+0.5,0.0,1.0));
+  }`
+}));
+flowers.frustumCulled=false;scene.add(flowers);
+
+/* dark soil under the leaves */
+const TW=70,TD=60,tGeo=new THREE.PlaneGeometry(TW,TD,small?50:80,small?44:70);
+const STEPZ=TD/(small?44:70);
+const ground=new THREE.Mesh(tGeo,new THREE.ShaderMaterial({
+  uniforms:U,
+  vertexShader:GLSL_COMMON+`uniform float uSnap;varying vec3 vW;varying float vDist;
+  void main(){float dx=position.x;float z=uSnap+position.y-${(TD/2-8).toFixed(1)};
+    vec3 w=vec3(pathX(z)+dx,terrainH(dx,z),z);vW=w;vec4 mv=viewMatrix*vec4(w,1.0);vDist=-mv.z;gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:GLSL_COMMON+`uniform float uFogN,uFogF;varying vec3 vW;varying float vDist;
+  void main(){float c1;vec3 Lc=lightAt(vW,c1);
+    vec3 c=vec3(0.02,0.035,0.018)*(uAmb+Lc);
+    gl_FragColor=vec4(c*(1.0-smoothstep(uFogN,uFogF,vDist)),1.0);}`
+}));
+ground.frustumCulled=false;scene.add(ground);
+
+/* fireflies */
+const FF=small?140:300,ffGeo=new THREE.BufferGeometry(),ffSeed=new Float32Array(FF*4);
+for(let i=0;i<FF*4;i++)ffSeed[i]=Math.random();
+ffGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(FF*3),3));
+ffGeo.setAttribute('aSeed',new THREE.BufferAttribute(ffSeed,4));
+const fireflies=new THREE.Points(ffGeo,new THREE.ShaderMaterial({
+  uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:GLSL_COMMON+`uniform float uTime,uScale,uDisp,uFocusZ;attribute vec4 aSeed;varying float vA;varying vec3 vC;
+  void main(){vec3 box=vec3(36.0,3.2,34.0);
+    vec3 b=aSeed.xyz*box+vec3(sin(uTime*0.23+aSeed.w*9.0)*1.6,sin(uTime*0.5+aSeed.x*7.0)*0.5,cos(uTime*0.19+aSeed.y*9.0)*1.6);
+    float z=uFocusZ+6.0-mod(uFocusZ+6.0-b.z,box.z);
+    vec3 p=vec3(pathX(z)+b.x-box.x*0.5,terrainH(b.x-box.x*0.5,z)+0.5+b.y+uDisp*1.5*aSeed.w,z);
+    vec4 mv=viewMatrix*vec4(p,1.0);float dist=-mv.z;gl_Position=projectionMatrix*mv;
+    gl_PointSize=clamp((0.07+aSeed.w*0.07)*uScale/max(dist,0.1),0.0,40.0);
+    float blink=pow(0.5+0.5*sin(uTime*(0.8+aSeed.x*1.6)+aSeed.y*30.0),3.0);
+    vA=blink*(1.0-smoothstep(16.0,28.0,dist))*(1.0+uDisp);
+    vC=mix(vec3(1.0,0.85,0.45),vec3(0.7,1.0,0.6),aSeed.z);}`,
+  fragmentShader:`varying float vA;varying vec3 vC;void main(){float r=length(gl_PointCoord*2.0-1.0);float a=exp(-r*r*6.0)*vA;gl_FragColor=vec4(vC*a*2.6,a);}`
+}));
+fireflies.frustumCulled=false;scene.add(fireflies);
+
+/* ---------- post: HDR target → bloom → tilt-shift depth of field, split RGB, vignette, grain ---------- */
+const TYPE=floatOK?THREE.HalfFloatType:THREE.UnsignedByteType;
+const mkRT=(w,h,o={})=>new THREE.WebGLRenderTarget(w,h,{type:TYPE,depthBuffer:false,...o});
+let rtMain,rtA,rtA2,rtB,rtB2,W=1,H=1;
+const postCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1),postScene=new THREE.Scene();
+const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2));quad.frustumCulled=false;postScene.add(quad);
+const VERT=`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`;
+const brightMat=new THREE.ShaderMaterial({uniforms:{tIn:{value:null},uTexel:{value:new THREE.Vector2()},uThr:{value:floatOK?.75:.62}},vertexShader:VERT,depthTest:false,
+  fragmentShader:`uniform sampler2D tIn;uniform vec2 uTexel;uniform float uThr;varying vec2 vUv;
+  void main(){vec3 c=vec3(0.0);
+    for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++)c+=texture2D(tIn,vUv+vec2(x,y)*uTexel*1.5).rgb;c/=9.0;
+    float l=max(c.r,max(c.g,c.b));gl_FragColor=vec4(c*smoothstep(uThr,uThr+0.7,l),1.0);}`});
+const blurMat=new THREE.ShaderMaterial({uniforms:{tIn:{value:null},uDir:{value:new THREE.Vector2()}},vertexShader:VERT,depthTest:false,
+  fragmentShader:`uniform sampler2D tIn;uniform vec2 uDir;varying vec2 vUv;
+  void main(){vec3 c=texture2D(tIn,vUv).rgb*0.227;
+    c+=(texture2D(tIn,vUv+uDir*1.385).rgb+texture2D(tIn,vUv-uDir*1.385).rgb)*0.316;
+    c+=(texture2D(tIn,vUv+uDir*3.231).rgb+texture2D(tIn,vUv-uDir*3.231).rgb)*0.07;
+    gl_FragColor=vec4(c,1.0);}`});
+const copyMat=new THREE.ShaderMaterial({uniforms:{tIn:{value:null}},vertexShader:VERT,depthTest:false,
+  fragmentShader:`uniform sampler2D tIn;varying vec2 vUv;void main(){gl_FragColor=texture2D(tIn,vUv);}`});
+const compMat=new THREE.ShaderMaterial({vertexShader:VERT,depthTest:false,
+  uniforms:{tScene:{value:null},tA:{value:null},tB:{value:null},uRes:{value:new THREE.Vector2()},uTime:U.uTime,
+    uDof:{value:9},uFocusY:{value:.5},uSpeed:{value:0},uVig:{value:.5},uExp:{value:1.55}},
+  fragmentShader:`uniform sampler2D tScene,tA,tB;uniform vec2 uRes;uniform float uTime,uDof,uFocusY,uSpeed,uVig,uExp;varying vec2 vUv;
+  vec3 dof(vec2 uv,float rad){vec3 acc=vec3(0.0);float ws=0.0;
+    for(int i=0;i<16;i++){float fi=float(i);float r=sqrt((fi+0.5)/16.0)*rad;float th=fi*2.39996;
+      vec3 c=texture2D(tScene,uv+vec2(cos(th),sin(th))*r/uRes).rgb;float w=1.0+dot(c,vec3(0.3,0.6,0.1))*2.0;acc+=c*w;ws+=w;}
+    return acc/ws;}
+  void main(){vec2 uv=vUv;float asp=uRes.x/uRes.y;
+    float dy=uv.y-uFocusY,dxx=(uv.x-0.5)*asp;
+    float m=smoothstep(0.07,0.45,(dy<0.0?-dy*1.35:dy*0.8)+dxx*dxx*0.32);
+    m=clamp(m+uSpeed*0.08,0.0,1.0);
+    float rad=m*uDof;
+    vec3 col=rad>0.7?dof(uv,rad):texture2D(tScene,uv).rgb;
+    vec2 ca=(uv-0.5)*(0.002+uSpeed*0.006)*(0.3+m);
+    col.r=mix(col.r,texture2D(tScene,uv+ca).r,0.15+0.45*m);
+    col.b=mix(col.b,texture2D(tScene,uv-ca).b,0.15+0.45*m);
+    col+=texture2D(tA,uv).rgb*0.85+texture2D(tB,uv).rgb*0.75;
+    col=1.0-exp(-col*uExp);
+    float vg=length((uv-0.5)*vec2(asp*0.6,1.0));
+    col*=1.0-smoothstep(0.38-uVig*0.1,0.92-uVig*0.14,vg)*0.92;
+    col+=(fract(sin(dot(uv*uRes+fract(uTime)*91.0,vec2(12.9898,78.233)))*43758.5453)-0.5)*0.035;
+    gl_FragColor=vec4(col,1.0);}`});
+function pass(mat,input,target,extra){
+  if(input)mat.uniforms.tIn.value=input;
+  if(extra)extra(mat.uniforms);
+  quad.material=mat;renderer.setRenderTarget(target);renderer.render(postScene,postCam);
+}
+function buildTargets(){
+  [rtMain,rtA,rtA2,rtB,rtB2].forEach(t=>t&&t.dispose());
+  W=Math.max(2,Math.floor(innerWidth*DPR));H=Math.max(2,Math.floor(innerHeight*DPR));
+  rtMain=mkRT(W,H,{depthBuffer:true,samples:isGL2?4:0});
+  const aw=Math.ceil(W/4),ah=Math.ceil(H/4),bw=Math.ceil(W/8),bh=Math.ceil(H/8);
+  rtA=mkRT(aw,ah);rtA2=mkRT(aw,ah);rtB=mkRT(bw,bh);rtB2=mkRT(bw,bh);
+  compMat.uniforms.uRes.value.set(W,H);
+  compMat.uniforms.uDof.value=(small?6:9)*DPR;
+}
+
+/* ---------- state & input ---------- */
+const introStart=performance.now();
+const state={travel:0,idle:0,disp:0,dispT:0,mx:0,my:0,tmx:0,tmy:0,mOn:0,mOnT:0,touchT:0,
+  speed:0,vig:.5,roll:0,fov:50,lx:0,lz:-8,pulseAge:9,camY:null};
+let haveMouse=false;
+addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;haveMouse=true;state.tmx=e.clientX/innerWidth*2-1;state.tmy=-(e.clientY/innerHeight*2-1);state.mOnT=1});
+addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;state.tmx=e.clientX/innerWidth*2-1;state.tmy=-(e.clientY/innerHeight*2-1);state.touchT=2.2});
+document.addEventListener('pointerleave',()=>state.mOnT=0);
+addEventListener('valley:hover',e=>state.dispT=e.detail?1:0);
+addEventListener('valley:pulse',()=>{state.pulseAge=0;U.uPulse.value.set(state.lx,state.lz,0,1)});
+
+function resize(){
+  renderer.setPixelRatio(DPR);renderer.setSize(innerWidth,innerHeight);
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  buildTargets();
+}
+let lastW=innerWidth;
+addEventListener('resize',()=>{resize();if(Math.abs(innerWidth-lastW)>120){lastW=innerWidth;HALF=Math.min(24,4+27*Math.tan(Math.atan(Math.tan(THREE.MathUtils.degToRad(25))*innerWidth/innerHeight)));slots.fill(null)}});
+resize();
+
+const ray=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),-.3),hit=new THREE.Vector3(),ndc=new THREE.Vector2(),look=new THREE.Vector3();
+const clock=new THREE.Clock();
+let frames=0,loadedSent=false,introSent=false,ema=16,lastAdapt=performance.now(),first=true;
+
+function frame(){
+  const now=performance.now();
+  const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
+  U.uTime.value=time;
+  if(frames>30){ema+=(dt*1000-ema)*.05;
+    if(now-lastAdapt>2500){lastAdapt=now;if(ema>27&&DPR>.75){DPR=Math.max(.75,DPR-.2);resize()}else if(ema<14&&DPR<Math.min(devicePixelRatio||1,1.6)-.05){DPR=Math.min(DPR+.1,1.6);resize()}}}
+
+  // scroll → walk forward (1 screen ≈ 9 units), slow idle drift, intro swoop
+  const target=scrollY/innerHeight*9;
+  const prev=state.travel;
+  state.travel+=(target-state.travel)*Math.min(1,dt*2.4);
+  state.dispT>0?state.disp+=(1-state.disp)*Math.min(1,dt*1.7):state.disp+=(0-state.disp)*Math.min(1,dt*2);
+  if(!reduce)state.idle+=dt*.5*(1-state.disp);
+  const ip=reduce?1:Math.min(1,(now-introStart)/3600),ie=Math.pow(1-ip,3);
+  const fz=-(state.travel+state.idle-26*ie);
+  state.speed+=((Math.abs(state.travel-prev)/Math.max(dt,1e-3))-state.speed)*Math.min(1,dt*4);
+  const sp=Math.min(1,state.speed/12);
+
+  state.mx+=(state.tmx-state.mx)*Math.min(1,dt*5);state.my+=(state.tmy-state.my)*Math.min(1,dt*5);
+  state.touchT=Math.max(0,state.touchT-dt);
+  state.mOn+=((haveMouse?state.mOnT:0)-state.mOn)*Math.min(1,dt*3);
+
+  // camera: high, looking down the winding flower path; banks into turns, dips & widens with speed
+  const cz=fz+7;
+  const camX=pathX(cz)*.5+pathX(fz)*.5+state.mx*.9*state.mOn;
+  const gy=terrainH(0,cz)+8.2+ie*7-sp*1.3+(reduce?0:Math.sin(time*.4)*.15);
+  state.camY=state.camY===null?gy:state.camY+(gy-state.camY)*Math.min(1,dt*3);
+  camera.position.set(camX,state.camY+state.my*.5*state.mOn,cz);
+  look.set(pathX(fz-1.5)+state.mx*.7*state.mOn,.2+state.my*.6*state.mOn,fz-1.5);
+  camera.lookAt(look);
+  const roll=(pathX(fz-9)-pathX(fz))*.03+(reduce?0:Math.sin(time*.27)*.012);
+  state.roll+=(roll-state.roll)*Math.min(1,dt*2);camera.rotateZ(state.roll);
+  const fov=50+sp*9-state.disp*3+ie*6;
+  if(Math.abs(fov-state.fov)>.01){state.fov=fov;camera.fov=fov;camera.updateProjectionMatrix()}
+  U.uScale.value=(H)/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
+  U.uCamPos.value.copy(camera.position);U.uFocusZ.value=fz;
+  camera.updateMatrixWorld();
+
+  // light under the cursor (or a wandering lantern on touch screens)
+  let tx,tz,on;
+  if(state.mOn>.02||state.touchT>0){
+    ndc.set(state.mx,state.my);ray.setFromCamera(ndc,camera);
+    if(ray.ray.intersectPlane(plane,hit)){tx=hit.x;tz=hit.z}
+    on=Math.max(state.mOn,Math.min(1,state.touchT));
+  }
+  if(tx===undefined){tx=pathX(fz)+Math.sin(time*.31)*3.5;tz=fz-1+Math.cos(time*.23)*2.5;on=haveMouse?0:.75}
+  state.lx+=(tx-state.lx)*Math.min(1,dt*7);state.lz+=(tz-state.lz)*Math.min(1,dt*7);
+  U.uLight.value.set(state.lx,0,state.lz);
+  U.uLightOn.value+=(on-U.uLightOn.value)*Math.min(1,dt*4);
+  U.uLight2.value.set(pathX(fz)+Math.sin(time*.13)*6,0,fz-3+Math.cos(time*.11)*4);
+  state.pulseAge+=dt;
+  U.uPulse.value.z=state.pulseAge*10;U.uPulse.value.w=Math.max(0,1-state.pulseAge/1.8);
+  U.uDisp.value=state.disp*state.disp*(3-2*state.disp);
+  U.uSnap.value=Math.floor(fz/STEPZ)*STEPZ;
+
+  updateChunks(cz+3,fz-27,first);first=false;
+
+  renderer.setRenderTarget(rtMain);renderer.render(scene,camera);
+  pass(brightMat,rtMain.texture,rtA,u=>u.uTexel.value.set(1/W,1/H));
+  pass(blurMat,rtA.texture,rtA2,u=>u.uDir.value.set(1/rtA.width,0));
+  pass(blurMat,rtA2.texture,rtA,u=>u.uDir.value.set(0,1/rtA.height));
+  pass(copyMat,rtA.texture,rtB);
+  pass(blurMat,rtB.texture,rtB2,u=>u.uDir.value.set(1.6/rtB.width,0));
+  pass(blurMat,rtB2.texture,rtB,u=>u.uDir.value.set(0,1.6/rtB.height));
+  const v=.45+sp*.45+state.disp*.2;state.vig+=(v-state.vig)*Math.min(1,dt*3);
+  const cu=compMat.uniforms;
+  cu.tScene.value=rtMain.texture;cu.tA.value=rtA.texture;cu.tB.value=rtB.texture;
+  cu.uSpeed.value=sp;cu.uVig.value=state.vig;cu.uFocusY.value=.5;
+  quad.material=compMat;renderer.setRenderTarget(null);renderer.render(postScene,postCam);
+
+  frames++;
+  if(!loadedSent&&frames>2){loadedSent=true;window.__valleyLoaded&&window.__valleyLoaded()}
+  if(!introSent&&frames>3&&ip>.62){introSent=true;window.__valleyIntroDone&&window.__valleyIntroDone()}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+</script>
+</body>
+</html>
